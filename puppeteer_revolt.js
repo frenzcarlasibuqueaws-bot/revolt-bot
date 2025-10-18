@@ -225,13 +225,15 @@ async function start_everything(IDENTIFIER_USER, IS_HEADLESS = true, START_IMMED
 					if(server._id == '01JDKH82R0RHG2VF9YDWKEFHC5'){
 						//addLog({ type: "BotMessage", message: `many` });
 						//sendToDiscord("New ticket available!");
-						var result = await sendMessage(msg?.channel, instantResponse?.response?.respondWith, page);
-						var result = await sendMessage(msg?.channel, instantResponse?.response?.respondWith, page);
-						var result = await sendMessage(msg?.channel, instantResponse?.response?.respondWith, page);
+						// var result = await sendMessage(msg?.channel, instantResponse?.response?.respondWith, page);
+						// var result = await sendMessage(msg?.channel, instantResponse?.response?.respondWith, page);
+						// var result = await sendMessage(msg?.channel, instantResponse?.response?.respondWith, page);
+						await sendMessage(msg?.channel, instantResponse?.response?.respondWith, page);
 					} else  {
 						//addLog({ type: "BotMessage", message: `one only` });
 						//sendToDiscord("New ticket available!");
-						var result = await sendMessage(msg?.channel, instantResponse?.response?.respondWith, page);
+						// var result = await sendMessage(msg?.channel, instantResponse?.response?.respondWith, page);
+						await sendMessage(msg?.channel, instantResponse?.response?.respondWith, page);
 					}
 					sendToDiscord(server.name, category.title, server._id,channel._id,channel.name);
 					//addLog({ type: "DebugMessage", message: JSON.stringify(result) });
@@ -256,32 +258,53 @@ async function start_everything(IDENTIFIER_USER, IS_HEADLESS = true, START_IMMED
 		if (_canReply.canReply) {
 				var response = (getReplyWith(msg.server)) ? getReplyWith(msg.server) : "";
 
+				// var delay = getRandomInt(response_delay.min_ms, response_delay.max_ms);
+
+				// if (response) {
+					// addLog({ type: "BotMessage", message: `Waiting for ${delay / 1000} seconds to send response` });
+					// for (let i = 0; i < 4; i++) {
+						// setTimeout(async () => {
+							// try {
+								// if (responseType[msg.server] == "PARSED_NUMBER") {
+									// var response = extractNumbers(msg.name)[0];
+								// }
+
+								// if (response && claimStatus) {
+									// var result = await sendMessage(msg._id, `${response}`, page);
+									console.log(result.data);
+									// addLog({ type: "BotMessage", message: `Response successfully sent to "${msg.name}".` });
+									addLog({ type: "DebugMessage", message: JSON.stringify(result) });
+								// } else {
+									// addLog({ type: "BotMessage", message: `No number was extracted from "${msg.name}".` });
+								// }
+							// } catch (error) {
+								// console.log(error);
+								// addLog({ type: "BotMessage", message: `Something went wrong when sending repsonse. ID: ${msg._id} | Name: ${msg.name}` });
+							// }
+						// }, i * 30);
+					// }
+				// } else {
+				
 				var delay = getRandomInt(response_delay.min_ms, response_delay.max_ms);
-
-				if (response) {
-					addLog({ type: "BotMessage", message: `Waiting for ${delay / 1000} seconds to send response` });
-					for (let i = 0; i < 4; i++) {
-						setTimeout(async () => {
-							try {
-								if (responseType[msg.server] == "PARSED_NUMBER") {
-									var response = extractNumbers(msg.name)[0];
-								}
-
-								if (response && claimStatus) {
-									var result = await sendMessage(msg._id, `${response}`, page);
-									//console.log(result.data);
-									addLog({ type: "BotMessage", message: `Response successfully sent to "${msg.name}".` });
-									//addLog({ type: "DebugMessage", message: JSON.stringify(result) });
-								} else {
-									addLog({ type: "BotMessage", message: `No number was extracted from "${msg.name}".` });
-								}
-							} catch (error) {
-								console.log(error);
-								addLog({ type: "BotMessage", message: `Something went wrong when sending repsonse. ID: ${msg._id} | Name: ${msg.name}` });
-							}
-						}, i * 30);
-					}
-				} else {
+		        if (response) {
+		          addLog({ type: "BotMessage", message: `Waiting for ${delay} ms to send response` });
+		          setTimeout(async () => {
+		            try {
+		              if (responseType[msg.server] == "PARSED_NUMBER") {
+		                var response = extractNumbers(msg.name)[0];
+		              }
+		              if (response && claimStatus) {
+		                var result = await sendMessage(msg._id, `${response}`, page);
+		                addLog({ type: "BotMessage", message: `Response successfully sent to "${msg.name}".` });
+		              } else {
+		                addLog({ type: "BotMessage", message: `No number was extracted from "${msg.name}".` });
+		              }
+		            } catch (error) {
+		              console.log(error);
+		              addLog({ type: "BotMessage", message: `Something went wrong when sending repsonse. ID: ${msg._id} | Name: ${msg.name}` });
+		            }
+		          }, delay);
+		        } else {
 					addLog({ type: "BotMessage", message: `🤚 Set response is empty. I will not be replying. ID: ${msg._id} | Name: ${msg.name} | Reason: ${_canReply.reason}` });
 				}
 			} else {
@@ -442,7 +465,7 @@ async function start_everything(IDENTIFIER_USER, IS_HEADLESS = true, START_IMMED
 			//io.emit("log", { timestamp: new Date().getTime(), log: { type: "Info", message: "Will start again in 5 seconds." } });
 			setTimeout(() => {
 				start();
-			}, 5000);
+			}, 4500 + Math.floor(Math.random()*700));
 		}
 	});
 
@@ -466,7 +489,7 @@ async function start_everything(IDENTIFIER_USER, IS_HEADLESS = true, START_IMMED
 				//io.emit("log", { timestamp: new Date().getTime(), log: { type: "Info", message: "Will start again in 5 seconds." } });
 				setTimeout(() => {
 					start();
-				}, 5000);
+				}, 4500 + Math.floor(Math.random()*700));
 			}
 		}
 	});
@@ -495,6 +518,10 @@ async function start_everything(IDENTIFIER_USER, IS_HEADLESS = true, START_IMMED
 			args: ["--disable-blink-features=AutomationControlled"],
 		});
 		const page = await browser.newPage();
+		try { await page.setCacheEnabled(false); } catch {}
+		try { await page.setBypassCSP(true); } catch {}
+		try { await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"); } catch {}
+		try { await page.exposeFunction("generate_nonce", generate_nonce); } catch {}
 		page.goto("https://revolt.onech.at/");
 
 		addLog({ type: "DebugMessage", message: "Puppeteer browser has launched. Bot dashboard panel will open once Revolt account is authenticated." });
@@ -503,6 +530,7 @@ async function start_everything(IDENTIFIER_USER, IS_HEADLESS = true, START_IMMED
 		const client = await page.target().createCDPSession();
 
 		await client.send("Network.enable");
+		try { await client.send("Network.setCacheDisabled", { cacheDisabled: true }); } catch {}
 
 		client.on("Network.webSocketCreated", ({ requestId, url }) => {
 			// console.log("Network.webSocketCreated", requestId, url);
@@ -795,12 +823,16 @@ async function start_everything(IDENTIFIER_USER, IS_HEADLESS = true, START_IMMED
 			for (let index = 0; index < Object.values(instantResponses[serverId] ? instantResponses[serverId] : {}).length; index++) {
 				const response = Object.values(instantResponses[serverId] ? instantResponses[serverId] : {})[index];
 
-				if (response.caseSensitive) {
-					message = message.toLowerCase();
-					channelName = channelName.toLowerCase();
-				}
+				// if (response.caseSensitive) {
+					// message = message.toLowerCase();
+					// channelName = channelName.toLowerCase();
+				// }
 
-				if (message.includes(response.message)) {
+				// if (message.includes(response.message)) {
+				const _msg = response.caseSensitive ? message : String(message).toLowerCase();
+		        const _chan = response.caseSensitive ? channelName : String(channelName).toLowerCase();
+		        const _needle = response.caseSensitive ? response.message : String(response.message).toLowerCase();
+		        if (_msg.includes(_needle)) {
 					if (response.regex) {
 						return {
 							found: true,
@@ -826,8 +858,10 @@ async function start_everything(IDENTIFIER_USER, IS_HEADLESS = true, START_IMMED
 			for (let index = 0; index < responses[`${serverId}_keywords`].length; index++) {
 				const keyword = responses[`${serverId}_keywords`][index];
 
-				if (`${serverId}_keywords_is_case_sensitive`) {
-					if (channelName.toLowerCase().includes(keyword.toLowerCase())) {
+				// if (`${serverId}_keywords_is_case_sensitive`) {
+					// if (channelName.toLowerCase().includes(keyword.toLowerCase())) {
+				if (responses[`${serverId}_keywords_is_case_sensitive`] === false) {
+					if (channelName.toLowerCase().includes(String(keyword).toLowerCase())) {
 						return {
 							canReply: true,
 							reason: "keyword match on channel",
@@ -1087,32 +1121,44 @@ async function start_everything(IDENTIFIER_USER, IS_HEADLESS = true, START_IMMED
 
 	async function sendMessage(id, content, page) {
 		console.log({ id, content, page });
-		try {
-			await page.exposeFunction("generate_nonce", generate_nonce);
-		} catch (error) {}
+		// try {
+			// await page.exposeFunction("generate_nonce", generate_nonce);
+		// } catch (error) {}
 
-		return await page.evaluate(
-			async (id, content, token) => {
-				var result = await fetch(`https://revolt-api.onech.at/channels/${id}/messages`, {
-					method: "POST",
-					headers: {
-						"X-Session-Token": token,
-						"idempotency-key": await `01${await generate_nonce(24)}`,
-					},
-					body: JSON.stringify({
-						content: content,
-						nonce: `01${await generate_nonce(24)}`,
-						replies: [],
-					}),
-				});
+		// return await page.evaluate(
+			// async (id, content, token) => {
+				// var result = await fetch(`https://revolt-api.onech.at/channels/${id}/messages`, {
+					// method: "POST",
+					// headers: {
+						// "X-Session-Token": token,
+						// "idempotency-key": await `01${await generate_nonce(24)}`,
+					// },
+					// body: JSON.stringify({
+						// content: content,
+						// nonce: `01${await generate_nonce(24)}`,
+						// replies: [],
+					// }),
+				// });
 
 				// var data = await result.text();
 				// return data;
-			},
-			id,
-			content,
-			token
-		);
+			// },
+			// id,
+			// content,
+			// token
+		// );
+		return await page.evaluate(
+	    async (id, content, token) => {
+	      const idk = `01${await generate_nonce(24)}`;
+	      const nce = `01${await generate_nonce(24)}`;
+	      const headers = { "X-Session-Token": token, "idempotency-key": idk };
+	      const body = JSON.stringify({ content: content, nonce: nce, replies: [] });
+	      await fetch(`https://revolt-api.onech.at/channels/${id}/messages`, { method: "POST", headers, body });
+	    },
+	    id,
+	    content,
+	    token
+	  );
 	}
 
 	function formatTimestampWithAMPM(timestamp = new Date().getTime()) {
@@ -1569,7 +1615,7 @@ function isPortOpen(port) {
 
 async function getNextOpenPort(startFrom = 2222) {
 	let openPort = null;
-	while (startFrom < 65535 || !!openPort) {
+	while (startFrom < 65535 && !openPort) {
 		if (await isPortOpen(startFrom)) {
 			openPort = startFrom;
 			break;
